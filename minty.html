@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NFT Token Minting</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.1.umd.min.js" integrity="sha384-B6+jpkD6Z9X6yr81hVdr3qy1QeTjLL0D0TwxG8rMYfhfMXsZp9sHsFkVhWd4w+ul" crossorigin="anonymous"></script>
+</head>
+<body>
+  <button id="mintTokenBtn">Mint Token</button>
+  <script>
+    // Set the address of the NFT holder and the contract address of the 721 token
+    const nftHolderAddress = "0x1234567890123456789012345678901234567890";
+    const tokenContractAddress = "0x0987654321098765432109876543210987654321";
+    
+    // Create a new instance of the ethers library's Web3Provider
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    
+    // Create a new instance of the Contract class using the token contract address and abi
+    const tokenContract = new ethers.Contract(tokenContractAddress, tokenContractAbi, provider.getSigner());
+    
+    // Add an event listener to the button that will trigger the minting of the token
+    document.getElementById("mintTokenBtn").addEventListener("click", async () => {
+      try {
+        // Get the balance of the NFT holder's address
+        const balance = await provider.getBalance(nftHolderAddress);
+        
+        // Check if the balance is greater than zero (i.e. the NFT holder has ETH to pay for gas)
+        if (balance.gt(0)) {
+          // Call the mint function of the 721 token contract with the NFT holder's address as the recipient
+          const tx = await tokenContract.mint(nftHolderAddress);
+          
+          // Wait for the transaction to be confirmed
+          const receipt = await tx.wait();
+          
+          // Log the transaction hash and receipt to the console
+          console.log("Transaction Hash:", tx.hash);
+          console.log("Transaction Receipt:", receipt);
+        } else {
+          // If the balance is zero, log an error message to the console
+          console.error("Insufficient ETH balance to pay for gas.");
+        }
+      } catch (err) {
+        // If an error occurs, log the error to the console
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
